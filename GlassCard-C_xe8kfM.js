@@ -1,0 +1,1 @@
+import{j as n,a as o}from"./index-BUY71Hcm.js";function e({children:s,className:a,onClick:r}){return n.jsx("div",{className:o("glass rounded-[24px] p-6 sm:p-8 transition-transform duration-300 hover:scale-[1.02]",a),onClick:r,children:s})}export{e as G};
