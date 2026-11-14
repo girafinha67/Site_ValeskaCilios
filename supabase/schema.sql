@@ -271,3 +271,10 @@ where not exists (select 1 from public.services);
 
 -- Se a Valeska já criou a conta ANTES de rodar este script, promova manualmente:
 --   update public.profiles set role = 'admin' where lower(email) = 'maravaleska22@gmail.com';
+
+-- Endurecimento (já aplicado no projeto criado)
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.protect_role() from public, anon, authenticated;
+revoke execute on function public.cancel_my_booking(uuid) from public, anon;
+revoke execute on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;

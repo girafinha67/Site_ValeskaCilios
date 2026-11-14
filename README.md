@@ -47,3 +47,7 @@ Ative o provedor Google no Supabase e coloque `VITE_ENABLE_GOOGLE_LOGIN=true`.
 - Endereço padrão ("Rua das Flores, 456 – São Paulo") parece placeholder: edite em Admin > Configurações.
 - Nome aparece como "Valeska Rocha" (site antigo misturava "Mara Valeska").
 - Fuso fixo de Brasília (UTC-3).
+
+## Supabase já criado
+Projeto `valeska-cilios` (ref `lgyiqhvlutazociwmbhy`, região São Paulo) com o schema aplicado. As chaves públicas VITE já estão no `.env` e `.env.example`.
+Na Vercel cadastre `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL` e a secreta `SUPABASE_SERVICE_ROLE_KEY` (Supabase > Project Settings > API > service_role).
