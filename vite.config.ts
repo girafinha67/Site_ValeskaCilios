@@ -1,81 +1,53 @@
-import path from 'path';
+import path from 'node:path';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'vite';
+import { blogSlugs } from './scripts/routes';
 
-import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
-
-const rawPort = process.env.PORT;
-
-if (!rawPort) {
-  throw new Error(
-    'PORT environment variable is required but was not provided.',
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    'BASE_PATH environment variable is required but was not provided.',
-  );
-}
-
-export default defineConfig({
-  base: basePath,
-  plugins: [
-    react(),
-    tailwindcss(),
-    runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== 'production' &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import('@replit/vite-plugin-cartographer').then((m) =>
-            m.cartographer({
-              root: path.resolve(import.meta.dirname, '..'),
-            }),
-          ),
-          await import('@replit/vite-plugin-dev-banner').then((m) =>
-            m.devBanner(),
-          ),
-        ]
-      : []),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(import.meta.dirname, 'src'),
-      '@assets': path.resolve(
-        import.meta.dirname,
-        '..',
-        '..',
-        'attached_assets',
-      ),
+/**
+ * - Injeta no HTML a verificação do Google Search Console, o JSON-LD (SEO local) e a URL do site.
+ * - Gera sitemap.xml e robots.txt automaticamente no build (com a URL do seu domínio).
+ */
+function seoPlugin(env: Record<string, string>): Plugin {
+  const siteUrl = (env.VITE_SITE_URL || 'https://www.maravaleska.com.br').replace(/\/$/, '');
+  const gsc = env.VITE_GSC_VERIFICATION || '';
+  return {
+    name: 'valeska-seo',
+    transformIndexHtml(html) {
+      const gscTag = gsc ? `<meta name="google-site-verification" content="${gsc}" />` : '';
+      return html.replaceAll('%GSC_TAG%', gscTag).replaceAll('%SITE_URL%', siteUrl);
     },
-    dedupe: ['react', 'react-dom'],
-  },
-  root: path.resolve(import.meta.dirname),
-  build: {
-    outDir: path.resolve(import.meta.dirname, 'dist/public'),
-    emptyOutDir: true,
-  },
-  server: {
-    port,
-    strictPort: true,
-    host: '0.0.0.0',
-    allowedHosts: true,
-    fs: {
-      strict: true,
+    generateBundle() {
+      const pages = ['', '/sobre', '/servicos', '/agendar', '/blog', '/faq', '/contato', ...blogSlugs.map((s) => `/blog/${s}`)];
+      const today = new Date().toISOString().slice(0, 10);
+      const xml =
+        `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+        pages.map((p) => `  <url><loc>${siteUrl}${p}</loc><lastmod>${today}</lastmod><priority>${p === '' ? '1.0' : '0.8'}</priority></url>`).join('\n') +
+        `\n</urlset>\n`;
+      this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: xml });
+      this.emitFile({
+        type: 'asset',
+        fileName: 'robots.txt',
+        source: `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /minha-conta\nSitemap: ${siteUrl}/sitemap.xml\n`,
+      });
     },
-  },
-  preview: {
-    port,
-    host: '0.0.0.0',
-    allowedHosts: true,
-  },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  return {
+    plugins: [react(), tailwindcss(), seoPlugin(env)],
+    resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
+    server: { port: 5173 },
+    build: {
+      outDir: 'dist',
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          admin: path.resolve(__dirname, 'admin/index.html'),
+        },
+      },
+    },
+  };
 });
