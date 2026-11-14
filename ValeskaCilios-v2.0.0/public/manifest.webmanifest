@@ -1,0 +1,11 @@
+{
+  "name": "Valeska Rocha – Design de Cílios",
+  "short_name": "Valeska Cílios",
+  "description": "Design e alongamento de cílios. Agende online.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf6ed",
+  "theme_color": "#b98c00",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -1,0 +1,8 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#faf6ed"/><stop offset="1" stop-color="#f1e2a6"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <path d="M330 360c70-110 160-160 270-160s200 50 270 160" stroke="#b98c00" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <g stroke="#b98c00" stroke-width="8" stroke-linecap="round"><path d="M380 330 340 260"/><path d="M450 280 425 200"/><path d="M600 262V170"/><path d="M750 280l25-80"/><path d="M820 330l40-70"/></g>
+  <text x="600" y="460" text-anchor="middle" font-family="Georgia, serif" font-size="72" fill="#1d2140">Valeska Rocha</text>
+  <text x="600" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#6b5a1e">Design e Alongamento de Cílios</text>
+</svg>
