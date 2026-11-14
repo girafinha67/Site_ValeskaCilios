@@ -2,7 +2,7 @@
 
 Site + agendamento online + área do cliente + painel admin (página separada em `/admin`) + Google Agenda, Analytics (GA4) e Search Console.
 
-Stack: Vite + React + TypeScript + Tailwind · Supabase (login e banco) · Netlify (hospedagem + Functions).
+Stack: Vite + React + TypeScript + Tailwind · Supabase (login e banco) · Vercel (hospedagem + Functions).
 
 ## Colocar no ar (≈ 20 min)
 
@@ -13,11 +13,12 @@ Stack: Vite + React + TypeScript + Tailwind · Supabase (login e banco) · Netli
 4. **Authentication > URL Configuration**: Site URL = endereço do seu site; adicione `https://SEUSITE/**` em Redirect URLs.
 5. **Project Settings > API**: copie *Project URL*, *anon key* e *service_role key*.
 
-### 2) Netlify
-1. Suba esta pasta para o GitHub e importe no Netlify (ou `netlify deploy --prod`). Build: `npm run build`, publish: `dist` (já no `netlify.toml`).
-2. **Site settings > Environment variables**: cadastre as variáveis do arquivo `.env.example`.
-   Obrigatórias: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `VITE_SITE_URL`.
-3. Faça um novo deploy.
+### 2) Vercel
+1. Suba esta pasta para o GitHub e importe em vercel.com/new (preset Vite; o `vercel.json` já configura tudo, incluindo `/admin` e as funções em `/api`).
+2. **Settings > Environment Variables**: cadastre as do `.env.example`.
+   Públicas (VITE): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`.
+   Secreta (SEM prefixo VITE, nunca no navegador): `SUPABASE_SERVICE_ROLE_KEY`.
+3. Faça Redeploy.
 
 ### 3) Primeiro acesso admin
 Acesse `/entrar`, crie conta com o e-mail **maravaleska22@gmail.com** (já pré-autorizado no SQL), confirme o e-mail e entre em **`/admin`**.
@@ -40,7 +41,7 @@ Ative o provedor Google no Supabase e coloque `VITE_ENABLE_GOOGLE_LOGIN=true`.
 **Admin (`/admin`):** visão geral com gráficos, agenda (confirmar, concluir com valor, faltou, remarcar, cancelar, agendamento manual, bloqueio de horário, WhatsApp pronto), clientes (histórico, notas, aniversariantes, quem sumiu, CSV), serviços, horários/pausas/feriados/regras, mensagens, depoimentos, relatórios (receita, ticket, faltas, CSV), Google (Agenda/GA4/Search), configurações do estúdio, administradores.
 
 ## Desenvolvimento local
-`npm install` → copie `.env.example` para `.env` → `npm run dev` (usa Netlify CLI: `npm i -g netlify-cli`).
+`npm install` → copie `.env.example` para `.env` → `npm run dev` (usa Vercel CLI: `npm i -g vercel`) ou `npm run dev:web` só para o visual.
 
 ## Atenção
 - Endereço padrão ("Rua das Flores, 456 – São Paulo") parece placeholder: edite em Admin > Configurações.

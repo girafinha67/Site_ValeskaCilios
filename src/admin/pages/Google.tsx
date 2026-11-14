@@ -33,7 +33,7 @@ export default function GoogleIntegracoes() {
   }
 
   if (loading) return <Spinner />;
-  if (error || !data) return <p className="text-destructive">{error || 'Falha ao carregar.'} (Em desenvolvimento local use "netlify dev".)</p>;
+  if (error || !data) return <p className="text-destructive">{error || 'Falha ao carregar.'} (Em desenvolvimento local use "vercel dev".)</p>;
   const { status, calendar, ga4, gsc } = data;
 
   return (

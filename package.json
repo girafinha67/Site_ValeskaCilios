@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Site Valeska Rocha – Design e Alongamento de Cílios (site + agendamento + área do cliente + painel admin)",
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "vercel dev",
     "dev:web": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
@@ -17,7 +17,6 @@
     "google-auth-library": "^9.14.1"
   },
   "devDependencies": {
-    "@netlify/functions": "^2.8.2",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
@@ -34,6 +33,7 @@
     "tailwindcss": "^4.0.0",
     "typescript": "^5.5.4",
     "vite": "^6.0.0",
-    "wouter": "^3.3.5"
+    "wouter": "^3.3.5",
+    "@vercel/node": "^3.2.0"
   }
 }
