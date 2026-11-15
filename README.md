@@ -1,4 +1,4 @@
-# Valeska Cílios – v2.0.0
+# Valeska Cílios – v5.3.1
 
 Site + agendamento online + área do cliente + painel admin (página separada em `/admin`) + Google Agenda, Analytics (GA4) e Search Console.
 
@@ -20,17 +20,23 @@ Stack: Vite + React + TypeScript + Tailwind · Supabase (login e banco) · Verce
    Secreta (SEM prefixo VITE, nunca no navegador): `SUPABASE_SERVICE_ROLE_KEY`.
 3. Faça Redeploy.
 
-### 3) Primeiro acesso admin
-Acesse `/entrar`, crie conta com o e-mail **maravaleska22@gmail.com** (já pré-autorizado no SQL), confirme o e-mail e entre em **`/admin`**.
-Outro e-mail: rode no SQL `update public.profiles set role='admin' where email='x@x.com';` ou use Admin > Configurações.
+### 3) Login do painel admin (e-mail e senha pela Vercel)
+Na Vercel cadastre:
+- `ADMIN_EMAIL` = seu e-mail (ex.: maravaleska22@gmail.com)
+- `ADMIN_PASSWORD` = senha de **8 caracteres**
+Redeploy e entre em **`/admin`** com esse e-mail e senha. Para trocar a senha, altere a variável e faça Redeploy: o painel passa a aceitar a nova na hora. Quem não é o admin não entra, mesmo tendo conta de cliente.
 
-### 4) Google Agenda + Analytics + Search Console (uma conta de serviço só)
-1. console.cloud.google.com → novo projeto → ative as APIs: **Google Calendar API**, **Google Analytics Data API**, **Google Search Console API**.
-2. **IAM > Contas de serviço** → criar → **Chaves > Adicionar chave > JSON**. Cole o JSON inteiro (ou em base64) em `GOOGLE_SERVICE_ACCOUNT_JSON`.
-3. **Google Agenda**: Configurações da agenda > *Compartilhar com pessoas* → adicione o e-mail da conta de serviço com **"Fazer alterações em eventos"**. Copie o *ID da agenda* para `GOOGLE_CALENDAR_ID`.
-4. **Analytics 4**: crie a propriedade, copie o ID de medição (`G-...`) em Admin > Configurações (ou `VITE_GA_ID`). Em Admin da propriedade > *Gerenciamento de acesso* adicione a conta de serviço como **Leitor**; coloque o número da propriedade em `GA4_PROPERTY_ID`.
-5. **Search Console**: adicione o site, verifique pelo método *Tag HTML* e coloque só o código em `VITE_GSC_VERIFICATION`. Em Configurações > Usuários adicione a conta de serviço (Restrito). Preencha `GSC_SITE_URL` (ex.: `https://www.maravaleska.com.br/`). Depois envie `/sitemap.xml` (gerado automaticamente).
-6. Painel `/admin/google` mostra o status de cada integração e botão "Sincronizar agora".
+### 4) Google Agenda real (agendamentos do site aparecem sozinhos na sua agenda)
+1. Acesse console.cloud.google.com, crie um projeto e ative **Google Calendar API** (e, se quiser, *Google Analytics Data API* e *Google Search Console API*).
+2. **IAM e administrador > Contas de serviço > Criar conta de serviço** (nome: `site-agenda`). Depois abra a conta > **Chaves > Adicionar chave > Criar nova chave > JSON** (baixa um arquivo).
+3. Transforme o JSON em uma linha só (base64) e cole em `GOOGLE_SERVICE_ACCOUNT_JSON` na Vercel:
+   - Mac/Linux: `base64 -w0 arquivo.json`
+   - Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("arquivo.json"))`
+4. No **Google Agenda** (agenda.google.com, no computador): passe o mouse na sua agenda > ⋮ > **Configurações e compartilhamento** > **Compartilhar com pessoas específicas** > adicione o **e-mail da conta de serviço** (`...@...iam.gserviceaccount.com`, aparece no JSON e em `/admin/google`) com permissão **"Fazer alterações em eventos"**.
+5. Na mesma tela, em **Integrar agenda**, copie o **ID da agenda** (para a agenda principal é o seu próprio Gmail) e cole em `GOOGLE_CALENDAR_ID`.
+6. Redeploy. Em `/admin/google` o cartão "Google Agenda" deve ficar verde; clique em **Sincronizar agora** para enviar os agendamentos já existentes.
+Depois disso: cada agendamento feito no site (ou criado/remarcado/cancelado no painel) aparece, muda ou some do seu Google Agenda automaticamente, e horários em que você já tem compromisso no Google ficam indisponíveis no site.
+(Analytics e Search Console: mesma conta de serviço; veja `.env.example` e adicione o e-mail dela como Leitor/Usuário em cada serviço.)
 
 ### 5) Login com Google (opcional)
 Ative o provedor Google no Supabase e coloque `VITE_ENABLE_GOOGLE_LOGIN=true`.
@@ -51,3 +57,6 @@ Ative o provedor Google no Supabase e coloque `VITE_ENABLE_GOOGLE_LOGIN=true`.
 ## Supabase já criado
 Projeto `valeska-cilios` (ref `lgyiqhvlutazociwmbhy`, região São Paulo) com o schema aplicado. As chaves públicas VITE já estão no `.env` e `.env.example`.
 Na Vercel cadastre `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL` e a secreta `SUPABASE_SERVICE_ROLE_KEY` (Supabase > Project Settings > API > service_role).
+
+## Como os horários funcionam
+Cada serviço ocupa o tempo da sua duração (Admin > Serviços). O site oferece o primeiro horário na abertura e segue de duração em duração; ao lado de qualquer atendimento já marcado, libera o horário logo depois. Ex.: cílios de 1h marcado às 9h -> o próximo cliente só pode às 10h. Serviço de 2h bloqueia 2h. Pausas (almoço), dias bloqueados e compromissos do Google Agenda também são respeitados. Em Admin > Horários e regras dá para trocar para grade fixa e definir folga entre clientes.

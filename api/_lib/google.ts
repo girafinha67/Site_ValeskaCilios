@@ -1,5 +1,5 @@
 import { JWT } from 'google-auth-library';
-import type { Booking } from './supabase';
+import type { Booking } from './supabase.js';
 
 export const TZ = 'America/Sao_Paulo';
 const CAL_SCOPE = 'https://www.googleapis.com/auth/calendar';

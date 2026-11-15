@@ -1,5 +1,5 @@
 -- =====================================================================
---  Valeska Cílios v2.0.0 – Banco de dados (Supabase / PostgreSQL)
+--  Valeska Cílios v5.3.1 – Banco de dados (Supabase / PostgreSQL)
 --  Cole TUDO no Supabase > SQL Editor > New query > Run.
 --  Pode ser executado mais de uma vez (idempotente).
 -- =====================================================================
@@ -253,7 +253,7 @@ insert into public.business_hours (weekday, is_open, start_time, end_time, break
 on conflict (weekday) do nothing;
 
 insert into public.settings (key, value) values
-  ('booking', '{"slot_step_min":30,"min_notice_hours":4,"max_days_ahead":60,"cancel_hours":24,"buffer_min":0,"auto_confirm":false}'::jsonb),
+  ('booking', '{"slot_step_min":30,"min_notice_hours":4,"max_days_ahead":60,"cancel_hours":24,"buffer_min":0,"auto_confirm":false,"slot_mode":"duracao"}'::jsonb),
   ('business', '{}'::jsonb),
   ('integrations', '{"ga_id":""}'::jsonb)
 on conflict (key) do nothing;

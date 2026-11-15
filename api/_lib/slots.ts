@@ -1,5 +1,5 @@
-import { db } from './supabase';
-import { freeBusy } from './google';
+import { db } from './supabase.js';
+import { freeBusy } from './google.js';
 
 export const TZ_OFFSET = '-03:00'; // Brasil (sem horário de verão)
 
@@ -10,9 +10,10 @@ export interface BookingSettings {
   cancel_hours: number;
   buffer_min: number;
   auto_confirm: boolean;
+  slot_mode: 'duracao' | 'fixo';
 }
 
-const DEFAULTS: BookingSettings = { slot_step_min: 30, min_notice_hours: 4, max_days_ahead: 60, cancel_hours: 24, buffer_min: 0, auto_confirm: false };
+const DEFAULTS: BookingSettings = { slot_step_min: 30, min_notice_hours: 4, max_days_ahead: 60, cancel_hours: 24, buffer_min: 0, auto_confirm: false, slot_mode: 'duracao' };
 
 export async function getBookingSettings(): Promise<BookingSettings> {
   const { data } = await db().from('settings').select('value').eq('key', 'booking').maybeSingle();
@@ -57,22 +58,55 @@ export async function computeSlots(date: string, durationMin: number): Promise<{
     console.error('freeBusy falhou (seguindo só com o banco):', (e as Error).message);
   }
 
-  const open = toMin(hours.start_time);
-  const close = toMin(hours.end_time);
-  const bs = hours.break_start ? toMin(hours.break_start) : null;
-  const be = hours.break_end ? toMin(hours.break_end) : null;
-  const total = durationMin + s.buffer_min;
-  const earliest = now + s.min_notice_hours * 3600 * 1000;
-  const step = Math.max(10, s.slot_step_min);
-
-  const slots: string[] = [];
-  for (let m = open; m + durationMin <= close; m += step) {
-    if (bs !== null && be !== null && m < be && m + durationMin > bs) continue;
-    const start = isoAt(date, hhmm(m)).getTime();
-    const end = start + total * 60000;
-    if (start < earliest) continue;
-    if (busy.some((b) => start < b.e && end > b.s)) continue;
-    slots.push(hhmm(m));
-  }
+  const dayStartMs = dayStart.getTime();
+  const toDayMin = (ms: number) => (ms - dayStartMs) / 60000;
+  const minutes = pickSlots({
+    open: toMin(hours.start_time),
+    close: toMin(hours.end_time),
+    breakStart: hours.break_start ? toMin(hours.break_start) : null,
+    breakEnd: hours.break_end ? toMin(hours.break_end) : null,
+    durationMin,
+    stepMin: s.slot_step_min,
+    mode: s.slot_mode,
+    buffer: s.buffer_min,
+    earliest: toDayMin(now + s.min_notice_hours * 3600 * 1000),
+    busy: busy.map((b) => ({ s: toDayMin(b.s), e: toDayMin(b.e) })),
+  });
+  const slots = minutes.map(hhmm);
   return { slots, reason: slots.length ? undefined : 'Sem horários livres neste dia' };
+}
+
+export interface PickParams {
+  open: number; close: number; breakStart: number | null; breakEnd: number | null;
+  durationMin: number; stepMin: number; mode: 'duracao' | 'fixo'; buffer: number;
+  earliest: number; busy: { s: number; e: number }[];
+}
+
+/**
+ * Calcula os horários de início possíveis (em minutos desde 00:00).
+ * Modo "duracao": a grade segue a duração do serviço a partir da abertura e, além disso,
+ * cada horário livre logo após um atendimento existente (ex.: 1h agendada às 9h -> próximo às 10h).
+ * Modo "fixo": grade fixa a cada `stepMin` minutos.
+ */
+export function pickSlots(p: PickParams): number[] {
+  const dur = p.durationMin;
+  const busy = p.busy.map((b) => ({ s: b.s, e: b.e + p.buffer })); // folga de preparo depois de cada atendimento
+  const cands = new Set<number>();
+  if (p.mode === 'fixo') {
+    for (let m = p.open; m + dur <= p.close; m += Math.max(10, p.stepMin)) cands.add(m);
+  } else {
+    for (let m = p.open; m + dur <= p.close; m += dur) cands.add(m);
+    for (const b of busy) {
+      const e = Math.ceil(b.e / 5) * 5;
+      if (e >= p.open && e + dur <= p.close) cands.add(e);
+    }
+    if (p.breakEnd !== null && p.breakEnd + dur <= p.close) cands.add(p.breakEnd);
+  }
+  return [...cands]
+    .sort((a, b) => a - b)
+    .filter((m) => {
+      if (m < p.earliest) return false;
+      if (p.breakStart !== null && p.breakEnd !== null && m < p.breakEnd && m + dur > p.breakStart) return false;
+      return !busy.some((b) => m < b.e && m + dur > b.s);
+    });
 }

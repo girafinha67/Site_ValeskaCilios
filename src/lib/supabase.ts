@@ -10,7 +10,7 @@ export const supabase = createClient(url || 'https://placeholder.supabase.co', k
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-/** Chamada autenticada às Netlify Functions (/api/...). */
+/** Chamada autenticada às Vercel Functions (/api/...). */
 export async function api<T = any>(path: string, opts: { method?: string; body?: unknown } = {}): Promise<T> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;

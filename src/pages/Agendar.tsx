@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils';
 
 const DRAFT = 'vc_booking_draft';
 
+const addMin = (t: string, m: number) => { const x = Number(t.slice(0, 2)) * 60 + Number(t.slice(3)) + m; return `${String(Math.floor(x / 60)).padStart(2, '0')}:${String(x % 60).padStart(2, '0')}`; };
+
 export default function Agendar() {
   useSEO({ title: 'Agendar horário', description: 'Escolha o serviço, o dia e o horário e agende online em poucos cliques.' });
   const { site, services, booking: cfg } = useSettings();
@@ -183,13 +185,13 @@ export default function Agendar() {
               <div className="glass rounded-2xl p-5 min-h-[260px]">
                 {!date ? <p className="text-sm text-muted-foreground">Selecione um dia no calendário para ver os horários livres.</p> : (
                   <>
-                    <p className="font-serif text-lg capitalize mb-3">{fmtKeyLong(date)}</p>
+                    <p className="font-serif text-lg capitalize">{fmtKeyLong(date)}</p><p className="text-xs text-muted-foreground mb-3">{service.title} · duração {durationLabel(service.duration_min)}. Os horários seguem o tempo do serviço.</p>
                     {loadingSlots && <Spinner />}
                     {!loadingSlots && slots && slots.length === 0 && <p className="text-sm text-muted-foreground">{slotsMsg || 'Sem horários livres neste dia. Tente outra data.'}</p>}
                     {!loadingSlots && slots && slots.length > 0 && (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {slots.map((t) => (
-                          <button key={t} type="button" onClick={() => setTime(t)} aria-pressed={time === t} className={cn('rounded-xl border py-2 text-sm transition', time === t ? 'btn-glass-gold !rounded-xl' : 'border-input bg-white/60 hover:border-primary')}>{t}</button>
+                          <button key={t} type="button" onClick={() => setTime(t)} aria-pressed={time === t} className={cn('rounded-xl border py-2 text-sm transition', time === t ? 'btn-glass-gold !rounded-xl' : 'border-input bg-white/60 hover:border-primary')}>{t}<span className="block text-[10px] opacity-70">até {addMin(t, service.duration_min)}</span></button>
                         ))}
                       </div>
                     )}
@@ -206,7 +208,7 @@ export default function Agendar() {
             <GlassCard className="mb-10">
               <div className="grid sm:grid-cols-3 gap-4 text-sm mb-6">
                 <div><p className="text-muted-foreground text-xs">Serviço</p><p className="font-medium">{service.title}</p></div>
-                <div><p className="text-muted-foreground text-xs">Data e hora</p><p className="font-medium capitalize">{fmtKeyLong(date)} · {time}</p></div>
+                <div><p className="text-muted-foreground text-xs">Data e hora</p><p className="font-medium capitalize">{fmtKeyLong(date)} · {time} às {addMin(time, service.duration_min)}</p></div>
                 <div><p className="text-muted-foreground text-xs">Valor</p><p className="font-medium">{service.price_prefix} {money(service.price_cents)}</p></div>
               </div>
 

@@ -13,7 +13,7 @@ interface SettingsState {
   reload: () => Promise<void>;
 }
 
-export const defaultBooking: BookingSettings = { slot_step_min: 30, min_notice_hours: 4, max_days_ahead: 60, cancel_hours: 24, buffer_min: 0, auto_confirm: false };
+export const defaultBooking: BookingSettings = { slot_step_min: 30, min_notice_hours: 4, max_days_ahead: 60, cancel_hours: 24, buffer_min: 0, auto_confirm: false, slot_mode: 'duracao' };
 
 const Ctx = createContext<SettingsState>({ site: siteConfig, booking: defaultBooking, services: fallbackServices, ready: false, reload: async () => {} });
 

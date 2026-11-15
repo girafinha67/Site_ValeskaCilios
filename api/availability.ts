@@ -1,6 +1,6 @@
-import { db } from './_lib/supabase';
-import { computeSlots, validDate } from './_lib/slots';
-import { fail, json } from './_lib/http';
+import { db } from './_lib/supabase.js';
+import { computeSlots, validDate } from './_lib/slots.js';
+import { fail, json } from './_lib/http.js';
 
 async function handler(req: Request) {
   try {

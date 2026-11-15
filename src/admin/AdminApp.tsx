@@ -33,14 +33,23 @@ const NAV = [
 ] as const;
 
 function Login() {
-  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    try { await signIn(email.trim(), password); } catch (err) { toast.error((err as Error).message); } finally { setBusy(false); }
+    try {
+      const res = await fetch('/api/admin-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || 'Não foi possível entrar.');
+      const { error } = await supabase.auth.setSession({ access_token: j.access_token, refresh_token: j.refresh_token });
+      if (error) throw error;
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -49,8 +58,8 @@ function Login() {
           <p className="font-serif text-3xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Valeska Cílios</p>
           <p className="text-sm text-muted-foreground">Painel administrativo</p>
         </div>
-        {!supabaseReady && <p className="text-xs rounded-xl bg-amber-100 text-amber-800 p-3">Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (veja o README).</p>}
-        <Field label="E-mail"><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></Field>
+        {!supabaseReady && <p className="text-xs rounded-xl bg-amber-100 text-amber-800 p-3">Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY na Vercel.</p>}
+        <Field label="E-mail"><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" required /></Field>
         <Field label="Senha"><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required /></Field>
         <Button type="submit" loading={busy} className="w-full" size="lg">Entrar</Button>
         <a href="/" className="block text-center text-xs text-muted-foreground hover:text-primary">← Voltar ao site</a>

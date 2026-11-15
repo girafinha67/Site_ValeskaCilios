@@ -1,6 +1,6 @@
-import { authenticate, db, type Booking } from './_lib/supabase';
-import { calendarConfigured, syncEvent } from './_lib/google';
-import { fail, json } from './_lib/http';
+import { authenticate, db, type Booking } from './_lib/supabase.js';
+import { calendarConfigured, syncEvent } from './_lib/google.js';
+import { fail, json } from './_lib/http.js';
 
 async function syncOne(b: Booking) {
   const supa = db();

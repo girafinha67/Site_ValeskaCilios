@@ -1,8 +1,8 @@
-import { authenticate } from './_lib/supabase';
+import { authenticate } from './_lib/supabase.js';
 import {
   calendarConfigured, calendarInfo, ga4Configured, ga4Report, googleConfigured, gscConfigured, gscQuery, serviceAccountEmail,
-} from './_lib/google';
-import { fail, json } from './_lib/http';
+} from './_lib/google.js';
+import { fail, json } from './_lib/http.js';
 
 const isoDay = (offset: number) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
 const num = (v?: string) => Number(v ?? 0);

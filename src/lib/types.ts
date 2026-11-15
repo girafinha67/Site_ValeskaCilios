@@ -62,6 +62,7 @@ export interface BookingSettings {
   cancel_hours: number;
   buffer_min: number;
   auto_confirm: boolean;
+  slot_mode: 'duracao' | 'fixo';
 }
 
 export interface Testimonial {

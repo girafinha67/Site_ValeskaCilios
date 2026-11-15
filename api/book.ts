@@ -1,7 +1,7 @@
-import { authenticate, db, type Booking } from './_lib/supabase';
-import { computeSlots, getBookingSettings, isoAt, validDate } from './_lib/slots';
-import { syncEvent } from './_lib/google';
-import { fail, json } from './_lib/http';
+import { authenticate, db, type Booking } from './_lib/supabase.js';
+import { computeSlots, getBookingSettings, isoAt, validDate } from './_lib/slots.js';
+import { syncEvent } from './_lib/google.js';
+import { fail, json } from './_lib/http.js';
 
 async function handler(req: Request) {
   if (req.method !== 'POST') return fail(405, 'Método não permitido.');

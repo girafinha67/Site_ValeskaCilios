@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import type { BookingSettings, BusinessHour } from '@/lib/types';
 import { defaultBooking } from '@/lib/settings';
 import { dateKey, fmtDate } from '@/lib/time';
-import { Button, Card, Field, Input, Spinner } from '@/components/ui';
+import { Button, Card, Field, Input, Select, Spinner } from '@/components/ui';
 import { useAsync } from '../lib';
 
 const DAYS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
@@ -70,7 +70,8 @@ export default function Horarios() {
       <Card className="space-y-4">
         <h2 className="font-serif text-lg">Regras de agendamento</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Field label="Intervalo entre horários (min)" hint="De quanto em quanto tempo mostrar vagas"><Input type="number" min={10} step={5} value={rules.slot_step_min} onChange={num('slot_step_min')} /></Field>
+          <Field label="Como montar os horários" hint="Pela duração: 1h agendada às 9h libera o próximo às 10h; serviço de 2h ocupa 2h."><Select value={rules.slot_mode} onChange={(e) => setRules({ ...rules, slot_mode: e.target.value as BookingSettings['slot_mode'] })}><option value="duracao">Pela duração de cada serviço (recomendado)</option><option value="fixo">Grade fixa (intervalo abaixo)</option></Select></Field>
+          {rules.slot_mode === 'fixo' && <Field label="Intervalo da grade fixa (min)"><Input type="number" min={10} step={5} value={rules.slot_step_min} onChange={num('slot_step_min')} /></Field>}
           <Field label="Antecedência mínima (horas)"><Input type="number" min={0} value={rules.min_notice_hours} onChange={num('min_notice_hours')} /></Field>
           <Field label="Agenda aberta por (dias)"><Input type="number" min={1} value={rules.max_days_ahead} onChange={num('max_days_ahead')} /></Field>
           <Field label="Cancelamento online até (horas antes)"><Input type="number" min={0} value={rules.cancel_hours} onChange={num('cancel_hours')} /></Field>
