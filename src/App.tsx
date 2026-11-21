@@ -15,6 +15,7 @@ const Sobre = lazy(() => import('@/pages/Sobre'));
 const Servicos = lazy(() => import('@/pages/Servicos'));
 const Agendar = lazy(() => import('@/pages/Agendar'));
 const Entrar = lazy(() => import('@/pages/Entrar'));
+const Confirmado = lazy(() => import('@/pages/Confirmado'));
 const MinhaConta = lazy(() => import('@/pages/MinhaConta'));
 const Blog = lazy(() => import('@/pages/Blog'));
 const BlogArtigo = lazy(() => import('@/pages/BlogArtigo'));
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/servicos" component={page(Servicos)} />
             <Route path="/agendar" component={page(Agendar)} />
             <Route path="/entrar" component={page(Entrar)} />
+            <Route path="/confirmado" component={page(Confirmado)} />
             <Route path="/minha-conta" component={page(MinhaConta)} />
             <Route path="/blog" component={page(Blog)} />
             <Route path="/blog/:slug" component={page(BlogArtigo)} />

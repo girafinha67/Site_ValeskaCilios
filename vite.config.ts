@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss(), seoPlugin(env)],
     resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
-    server: { port: 5173 },
+    server: { port: 5173, strictPort: true },
     build: {
       outDir: 'dist',
       rollupOptions: {

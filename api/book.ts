@@ -1,6 +1,7 @@
 import { authenticate, db, type Booking } from './_lib/supabase.js';
 import { computeSlots, getBookingSettings, isoAt, validDate } from './_lib/slots.js';
 import { syncEvent } from './_lib/google.js';
+import { notifyBooking } from './_lib/notify.js';
 import { fail, json } from './_lib/http.js';
 
 async function handler(req: Request) {
@@ -72,6 +73,12 @@ async function handler(req: Request) {
       }
     } catch (e) {
       console.error('Falha ao criar evento no Google Agenda (agendamento mantido):', (e as Error).message);
+    }
+
+    // confirmação automática: já manda o convite para o Google Agenda / calendário da cliente
+    if (booking.status === 'confirmado') {
+      const { data: fresh } = await supa.from('bookings').select('*').eq('id', booking.id).maybeSingle();
+      if (fresh) await notifyBooking(fresh as Booking).catch(() => undefined);
     }
 
     return json(200, { booking });

@@ -3,6 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
+/** Erro vindo do link do e-mail (ex.: link expirado). Lido antes do supabase-js limpar a URL. */
+export const authUrlError: { code: string; message: string } | null = (() => {
+  if (typeof location === 'undefined') return null;
+  const p = new URLSearchParams(`${location.search.replace(/^\?/, '')}&${location.hash.replace(/^#/, '')}`);
+  const code = p.get('error_code') || p.get('error');
+  return code ? { code, message: p.get('error_description') || '' } : null;
+})();
+
 export const supabaseReady = Boolean(url && key);
 
 // Se as variáveis ainda não foram configuradas, o site continua abrindo (modo vitrine) e avisa no agendamento/login.

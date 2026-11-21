@@ -4,6 +4,7 @@ import {
 } from './_lib/google.js';
 import { fail, json } from './_lib/http.js';
 import { feedToken } from './_lib/feed.js';
+import { mailConfigured } from './_lib/mail.js';
 
 const isoDay = (offset: number) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
 const num = (v?: string) => Number(v ?? 0);
@@ -30,6 +31,7 @@ async function handler(req: Request) {
       calendarConfigured: calendarConfigured(),
       ga4Configured: ga4Configured(),
       gscConfigured: gscConfigured(),
+      mailConfigured: mailConfigured(),
     };
 
     const calendar = calendarConfigured() ? await safe(() => calendarInfo()) : null;

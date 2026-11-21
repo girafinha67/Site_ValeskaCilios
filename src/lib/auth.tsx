@@ -10,8 +10,8 @@ interface AuthState {
   loading: boolean;
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (p: { email: string; password: string; name: string; phone: string }) => Promise<{ needsConfirmation: boolean }>;
-  signInGoogle: () => Promise<void>;
+  signUp: (p: { email: string; password: string; name: string; phone: string; next?: string }) => Promise<{ needsConfirmation: boolean }>;
+  signInGoogle: (next?: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -59,18 +59,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw new Error(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : error.message === 'Email not confirmed' ? 'Confirme seu e-mail antes de entrar (veja sua caixa de entrada).' : error.message);
         track('login', { method: 'email' });
       },
-      async signUp({ email, password, name, phone }) {
+      async signUp({ email, password, name, phone, next = '/minha-conta' }) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name, phone }, emailRedirectTo: `${location.origin}/minha-conta` },
+          options: { data: { full_name: name, phone }, emailRedirectTo: `${location.origin}/confirmado?next=${encodeURIComponent(next)}` },
         });
         if (error) throw new Error(error.message.includes('already') ? 'Este e-mail já está cadastrado. Tente entrar.' : error.message);
         track('sign_up', { method: 'email' });
         return { needsConfirmation: !data.session };
       },
-      async signInGoogle() {
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${location.origin}/minha-conta` } });
+      async signInGoogle(next = '/minha-conta') {
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${location.origin}${next}` } });
         if (error) throw new Error(error.message);
       },
       async resetPassword(email) {

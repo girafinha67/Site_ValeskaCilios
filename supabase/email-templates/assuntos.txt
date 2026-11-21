@@ -1,0 +1,8 @@
+Assuntos (Authentication > Emails > cada modelo > Subject):
+
+confirmar-cadastro.html  ->  Confirme seu e-mail – Valeska Rocha
+recuperar-senha.html     ->  Crie uma nova senha – Valeska Rocha
+link-magico.html         ->  Seu link de acesso – Valeska Rocha
+convite.html             ->  Você foi convidada – Valeska Rocha
+trocar-email.html        ->  Confirme seu novo e-mail – Valeska Rocha
+reautenticar.html        ->  Seu código de confirmação – Valeska Rocha

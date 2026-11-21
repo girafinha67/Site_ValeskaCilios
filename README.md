@@ -1,4 +1,4 @@
-# Valeska Cílios – v5.3.2
+# Valeska Cílios – v5.4.0
 
 Site + agendamento online + área do cliente + painel admin (página separada em `/admin`) + Google Agenda, Analytics (GA4) e Search Console.
 
@@ -38,8 +38,19 @@ Redeploy e entre em **`/admin`** com esse e-mail e senha. Para trocar a senha, a
 Depois disso: cada agendamento feito no site (ou criado/remarcado/cancelado no painel) aparece, muda ou some do seu Google Agenda automaticamente, e horários em que você já tem compromisso no Google ficam indisponíveis no site.
 (Analytics e Search Console: mesma conta de serviço; veja `.env.example` e adicione o e-mail dela como Leitor/Usuário em cada serviço.)
 
-### 5) Login com Google (opcional)
-Ative o provedor Google no Supabase e coloque `VITE_ENABLE_GOOGLE_LOGIN=true`.
+### 5) Login com Google
+O botão "Continuar com Google" aparece por padrão (para esconder, `VITE_ENABLE_GOOGLE_LOGIN=false`). Ative em Supabase > Authentication > Providers > **Google** com um *OAuth Client ID* (console.cloud.google.com > APIs e serviços > Credenciais > ID do cliente OAuth, tipo Web; URI de redirecionamento = a "Callback URL" que o Supabase mostra). É só login (e-mail e nome); nenhuma API do Google precisa ser ativada.
+
+### 6) Convite automático no Google Agenda da cliente (sem API do Google)
+Quando você **confirma** um horário no painel (ou quando a confirmação é automática), **remarca** ou **cancela**, a cliente recebe um e-mail bonito com um convite de calendário (.ics). No Gmail/Google Agenda o evento entra sozinho; no iPhone e Outlook também. Não usa Google Cloud nem API.
+1. Rode no Supabase (SQL Editor) o arquivo `supabase/migrations/2026-11-21_convite_agenda.sql`.
+2. Na Vercel cadastre o e-mail de envio (SMTP): `SMTP_HOST`, `SMTP_PORT` (465), `SMTP_USER`, `SMTP_PASS` e `MAIL_FROM` (ex.: `"Valeska Rocha" <maravaleska22@gmail.com>`). Com Gmail: ative a verificação em duas etapas, crie uma **Senha de app** em myaccount.google.com/apppasswords e use `smtp.gmail.com` + essa senha. (Brevo, Resend e outros SMTP também servem.)
+3. Redeploy e, em `/admin/google`, clique em **Enviar convite de teste para mim**.
+Observação: o Google só adiciona sozinho se a cliente estiver com **Configurações do Google Agenda > Configurações de eventos > Adicionar convites automaticamente** em "Sim" (padrão). Caso contrário, aparece o cartão "Sim/Não" no e-mail. O convite vai para o e-mail da conta da cliente, por isso o login com Google ou e-mail é obrigatório para agendar.
+
+### 7) E-mails bonitos do Supabase (confirmação, senha, link de acesso)
+Supabase > **Authentication > Emails** (Templates): para cada modelo, cole o conteúdo do arquivo correspondente de `supabase/email-templates/` e o assunto de `assuntos.txt`. Para o remetente aparecer como "Valeska Rocha" (e não "Supabase"), configure também **Authentication > SMTP Settings** com o mesmo SMTP do passo 6.
+Em **Authentication > URL Configuration** deixe **Site URL** = endereço do site e em **Redirect URLs** adicione: `https://SEUSITE/**`, `http://localhost:3000/**` e `http://localhost:5173/**`. Assim o link do e-mail abre a página `/confirmado` (com o mesmo visual do site e o botão **Voltar ao site**) tanto no site quanto no localhost.
 
 ## O que tem
 **Site:** Home, Sobre, Serviços (do banco), Blog, FAQ, Contato (salva no painel), Privacidade/Termos (LGPD), aviso de cookies, SEO (sitemap, robots, JSON-LD).
@@ -55,7 +66,7 @@ Ative o provedor Google no Supabase e coloque `VITE_ENABLE_GOOGLE_LOGIN=true`.
 - Fuso fixo de Brasília (UTC-3).
 
 ## Supabase já criado
-Projeto `valeska-cilios` (ref `lgyiqhvlutazociwmbhy`, região São Paulo) com o schema aplicado. As chaves públicas VITE já estão no `.env` e `.env.example`.
+Projeto `valeska-cilios` (ref `lgyiqhvlutazociwmbhy`, região São Paulo) com o schema aplicado. As chaves públicas VITE estão no seu `.env` local (o `.env.example` traz só os nomes).
 Na Vercel cadastre `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL` e a secreta `SUPABASE_SERVICE_ROLE_KEY` (Supabase > Project Settings > API > service_role).
 
 ## Como os horários funcionam

@@ -121,7 +121,8 @@ export default function Agendar() {
         <GlassCard className="max-w-lg w-full text-center animate-fade-in-up h-fit">
           <CheckCircle2 className="mx-auto text-emerald-600 mb-4" size={56} />
           <h1 className="text-3xl font-serif mb-2">{done.status === 'confirmado' ? 'Horário confirmado!' : 'Solicitação enviada!'}</h1>
-          <p className="text-muted-foreground mb-6">{done.status === 'confirmado' ? 'Tudo certo! Esperamos você.' : 'Assim que a Valeska confirmar, o status muda na sua conta. Qualquer dúvida, chame no WhatsApp.'}</p>
+          <p className="text-muted-foreground mb-6">{done.status === 'confirmado' ? 'Tudo certo! Esperamos você.' : 'Assim que a Valeska confirmar, o status muda na sua conta e o horário entra sozinho no seu Google Agenda. Qualquer dúvida, chame no WhatsApp.'}</p>
+          {user?.email && <p className="text-xs text-muted-foreground -mt-3 mb-6">O convite será enviado para <strong>{user.email}</strong></p>}
           <div className="glass rounded-2xl p-5 text-left mb-6">
             <p className="font-serif text-xl">{done.service_title}</p>
             <p className="text-sm text-muted-foreground capitalize mt-1">{fmtDateLong(done.starts_at)} · {fmtTime(done.starts_at)}</p>

@@ -117,6 +117,7 @@ create table if not exists public.bookings (
   source text not null default 'site',
   cancelled_by text,
   google_event_id text,
+  invite_hash text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint bookings_time_ok check (ends_at > starts_at),
@@ -124,6 +125,7 @@ create table if not exists public.bookings (
   constraint bookings_no_overlap exclude using gist (tstzrange(starts_at, ends_at, '[)') with &&)
     where (status in ('pendente','confirmado'))
 );
+alter table public.bookings add column if not exists invite_hash text;
 create index if not exists bookings_starts_idx on public.bookings(starts_at);
 create index if not exists bookings_client_idx on public.bookings(client_id);
 

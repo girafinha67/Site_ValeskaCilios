@@ -36,6 +36,9 @@ export interface Booking {
   notes: string | null;
   admin_notes: string | null;
   google_event_id: string | null;
+  source?: string;
+  updated_at?: string;
+  invite_hash?: string | null;
 }
 
 /** Valida o token do usuário (Authorization: Bearer ...) e devolve o perfil. */

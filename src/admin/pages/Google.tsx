@@ -8,7 +8,7 @@ import { useAsync } from '../lib';
 
 interface Stats {
   feedUrl?: string;
-  status: { serviceAccountEmail: string | null; googleConfigured: boolean; calendarConfigured: boolean; ga4Configured: boolean; gscConfigured: boolean };
+  status: { serviceAccountEmail: string | null; googleConfigured: boolean; calendarConfigured: boolean; mailConfigured: boolean; ga4Configured: boolean; gscConfigured: boolean };
   calendar: { data?: { summary: string }; error?: string } | null;
   ga4: { data?: { totals: { users: number; sessions: number; pageviews: number }; daily: { date: string; users: number; pageviews: number }[]; pages: { path: string; views: number }[]; channels: { channel: string; sessions: number }[] }; error?: string } | null;
   gsc: { data?: { totals: { clicks: number; impressions: number; ctr: number; position: number }; queries: { key: string; clicks: number; impressions: number; position: number }[]; pages: { key: string; clicks: number; impressions: number }[] }; error?: string } | null;
@@ -21,6 +21,7 @@ const Status = ({ ok, title, detail, hint }: { ok: boolean; title: string; detai
 export default function GoogleIntegracoes() {
   const [days, setDays] = useState('28');
   const [syncing, setSyncing] = useState(false);
+  const [testing, setTesting] = useState(false);
   const { data, loading, error, reload } = useAsync(() => api<Stats>(`google-stats?days=${days}`), [days]);
 
   async function syncAll() {
@@ -31,6 +32,15 @@ export default function GoogleIntegracoes() {
       else toast.success(`${r.synced} agendamento(s) sincronizado(s).${r.errors?.length ? ` ${r.errors.length} erro(s).` : ''}`);
     } catch (e) { toast.error((e as Error).message); }
     setSyncing(false);
+  }
+
+  async function sendTest() {
+    setTesting(true);
+    try {
+      const r = await api<{ to: string }>('booking-notify', { body: { test: true } });
+      toast.success(`Convite de teste enviado para ${r.to}. Abra no Gmail para conferir.`);
+    } catch (e) { toast.error((e as Error).message); }
+    setTesting(false);
   }
 
   if (loading) return <Spinner />;
@@ -47,6 +57,11 @@ export default function GoogleIntegracoes() {
         <Status ok={status.gscConfigured && !gsc?.error} title="Search Console" detail="Dados recebidos" hint={gsc?.error || 'Defina GSC_SITE_URL e adicione a conta de serviço como usuária.'} />
       </div>
       {status.serviceAccountEmail && <p className="text-xs text-muted-foreground">E-mail da conta de serviço (compartilhe a agenda/propriedades com ele): <code className="select-all bg-muted rounded px-1.5 py-0.5">{status.serviceAccountEmail}</code></p>}
+
+      <Card className="space-y-3">
+        <div className="flex gap-3">{status.mailConfigured ? <CheckCircle2 className="text-emerald-600 shrink-0" /> : <CircleAlert className="text-amber-600 shrink-0" />}<div><p className="font-medium">Convites por e-mail (cai sozinho no Google Agenda da cliente)</p><p className="text-xs text-muted-foreground">{status.mailConfigured ? 'Ativo. Ao confirmar, remarcar ou cancelar um horário, a cliente recebe o convite e o calendário dela atualiza.' : 'Defina SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS e MAIL_FROM na Vercel e faça Redeploy.'}</p></div></div>
+        <Button variant="outline" size="sm" loading={testing} disabled={!status.mailConfigured} onClick={sendTest}>Enviar convite de teste para mim</Button>
+      </Card>
 
       {data.feedUrl && (
         <Card className="space-y-3">

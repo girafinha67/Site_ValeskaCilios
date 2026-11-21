@@ -24,15 +24,25 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[] = []) {
   return { data, loading, error, reload, setData };
 }
 
-/** Sincroniza um agendamento com o Google Agenda (silencioso quando não configurado). */
+/** Sincroniza o agendamento: Google Agenda por API (opcional) e convite de calendário por e-mail para a cliente. */
 export async function syncBooking(id: string) {
+  let synced = false;
   try {
     const r = await api<{ skipped?: boolean }>('calendar-sync', { body: { bookingId: id } });
-    return !r.skipped;
+    synced = !r.skipped;
   } catch (e) {
     toast.warning(`Salvo, mas o Google Agenda não sincronizou: ${(e as Error).message}`);
-    return false;
   }
+  try {
+    const r = await api<{ sent: boolean; kind?: string; reason?: string; message?: string }>('booking-notify', { body: { bookingId: id } });
+    if (r.sent) toast.success(r.kind === 'cancel' ? 'Cancelamento enviado: o horário sai do calendário da cliente.' : 'Convite enviado: o horário entra no Google Agenda da cliente.');
+    else if (r.reason === 'smtp') toast.warning('Configure o e-mail (SMTP) na Vercel para enviar o convite de agenda à cliente. Veja Google > Convites por e-mail.');
+    else if (r.reason === 'no_email') toast.info('Esta cliente não tem e-mail cadastrado: o convite de agenda não foi enviado.');
+    else if (r.reason === 'migration' || r.reason === 'error') toast.warning(r.message || 'Não foi possível enviar o convite de agenda.');
+  } catch (e) {
+    toast.warning(`Salvo, mas o convite de agenda não foi enviado: ${(e as Error).message}`);
+  }
+  return synced;
 }
 
 export async function loadBusiness(): Promise<SiteConfig> {

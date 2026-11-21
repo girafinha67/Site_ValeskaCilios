@@ -48,6 +48,7 @@ export default function MinhaConta() {
       const { error } = await supabase.rpc('cancel_my_booking', { p_id: b.id });
       if (error) throw new Error(error.message);
       api('calendar-sync', { body: { bookingId: b.id } }).catch(() => {});
+      api('booking-notify', { body: { bookingId: b.id } }).catch(() => {});
       toast.success('Agendamento cancelado.');
       load();
     } catch (e) {
