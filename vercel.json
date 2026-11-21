@@ -12,6 +12,10 @@
       "destination": "/admin/index.html"
     },
     {
+      "source": "/agenda/:file",
+      "destination": "/api/calendar?file=:file"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

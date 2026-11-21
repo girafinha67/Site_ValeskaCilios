@@ -3,6 +3,7 @@ import {
   calendarConfigured, calendarInfo, ga4Configured, ga4Report, googleConfigured, gscConfigured, gscQuery, serviceAccountEmail,
 } from './_lib/google.js';
 import { fail, json } from './_lib/http.js';
+import { feedToken } from './_lib/feed.js';
 
 const isoDay = (offset: number) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
 const num = (v?: string) => Number(v ?? 0);
@@ -72,7 +73,9 @@ async function handler(req: Request) {
         })
       : null;
 
-    return json(200, { days, status, calendar, ga4, gsc });
+    const host = req.headers.get('x-forwarded-host') || new URL(req.url).host;
+    const feedUrl = `https://${host}/agenda/${feedToken()}.ics`;
+    return json(200, { days, status, calendar, ga4, gsc, feedUrl });
   } catch (e) {
     console.error(e);
     return fail(500, 'Falha ao consultar as integrações do Google.');

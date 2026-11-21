@@ -1,4 +1,4 @@
-# Valeska Cílios – v5.3.1
+# Valeska Cílios – v5.3.2
 
 Site + agendamento online + área do cliente + painel admin (página separada em `/admin`) + Google Agenda, Analytics (GA4) e Search Console.
 
@@ -60,3 +60,6 @@ Na Vercel cadastre `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL
 
 ## Como os horários funcionam
 Cada serviço ocupa o tempo da sua duração (Admin > Serviços). O site oferece o primeiro horário na abertura e segue de duração em duração; ao lado de qualquer atendimento já marcado, libera o horário logo depois. Ex.: cílios de 1h marcado às 9h -> o próximo cliente só pode às 10h. Serviço de 2h bloqueia 2h. Pausas (almoço), dias bloqueados e compromissos do Google Agenda também são respeitados. Em Admin > Horários e regras dá para trocar para grade fixa e definir folga entre clientes.
+
+## Agenda sem Google Cloud (assinatura .ics)
+Não precisa de API, conta de serviço nem JSON. Em `/admin/google` copie o link da assinatura e adicione no Google Agenda (**Outras agendas > Por URL**) ou no iPhone (**Adicionar calendário assinado**). Os agendamentos do site aparecem sozinhos (somente leitura). Observação: o Google demora algumas horas para atualizar agendas assinadas; iPhone/Outlook são rápidos. O link é secreto (derivado da `SUPABASE_SERVICE_ROLE_KEY`; para fixar um valor use `CALENDAR_FEED_TOKEN`).

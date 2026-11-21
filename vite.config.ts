@@ -28,7 +28,7 @@ function seoPlugin(env: Record<string, string>): Plugin {
       this.emitFile({
         type: 'asset',
         fileName: 'robots.txt',
-        source: `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /minha-conta\nSitemap: ${siteUrl}/sitemap.xml\n`,
+        source: `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /minha-conta\nDisallow: /agenda/\nSitemap: ${siteUrl}/sitemap.xml\n`,
       });
     },
   };

@@ -7,6 +7,7 @@ import { Button, Card, Select, Spinner } from '@/components/ui';
 import { useAsync } from '../lib';
 
 interface Stats {
+  feedUrl?: string;
   status: { serviceAccountEmail: string | null; googleConfigured: boolean; calendarConfigured: boolean; ga4Configured: boolean; gscConfigured: boolean };
   calendar: { data?: { summary: string }; error?: string } | null;
   ga4: { data?: { totals: { users: number; sessions: number; pageviews: number }; daily: { date: string; users: number; pageviews: number }[]; pages: { path: string; views: number }[]; channels: { channel: string; sessions: number }[] }; error?: string } | null;
@@ -41,11 +42,24 @@ export default function GoogleIntegracoes() {
       <div className="flex flex-wrap justify-between gap-3 items-center"><h1 className="text-3xl font-serif">Google: Agenda, Analytics e Search</h1><div className="flex gap-2"><Select value={days} onChange={(e) => setDays(e.target.value)}><option value="7">7 dias</option><option value="28">28 dias</option><option value="90">90 dias</option></Select><Button variant="outline" onClick={reload}><RefreshCw size={15} /></Button></div></div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        <Status ok={status.calendarConfigured && !calendar?.error} title="Google Agenda" detail={calendar?.data?.summary ? `Conectada: ${calendar.data.summary}` : 'Conectada'} hint={calendar?.error || 'Defina GOOGLE_SERVICE_ACCOUNT_JSON e GOOGLE_CALENDAR_ID (veja o README).'} />
+        <Status ok={status.calendarConfigured && !calendar?.error} title="Google Agenda" detail={calendar?.data?.summary ? `Conectada: ${calendar.data.summary}` : 'Conectada'} hint={calendar?.error || 'Opcional (tempo real, exige Google Cloud). Sem isso, use a assinatura da agenda abaixo.'} />
         <Status ok={status.ga4Configured && !ga4?.error} title="Google Analytics 4" detail="Dados recebidos" hint={ga4?.error || 'Defina GA4_PROPERTY_ID e dê acesso de Leitor ao e-mail da conta de serviço.'} />
         <Status ok={status.gscConfigured && !gsc?.error} title="Search Console" detail="Dados recebidos" hint={gsc?.error || 'Defina GSC_SITE_URL e adicione a conta de serviço como usuária.'} />
       </div>
       {status.serviceAccountEmail && <p className="text-xs text-muted-foreground">E-mail da conta de serviço (compartilhe a agenda/propriedades com ele): <code className="select-all bg-muted rounded px-1.5 py-0.5">{status.serviceAccountEmail}</code></p>}
+
+      {data.feedUrl && (
+        <Card className="space-y-3">
+          <p className="font-medium">Agenda no seu Google/iPhone, sem API e sem Google Cloud</p>
+          <p className="text-xs text-muted-foreground">Copie o link e assine uma vez. Todos os agendamentos do site passam a aparecer na sua agenda sozinhos.</p>
+          <div className="flex gap-2 items-center"><code className="flex-1 min-w-0 truncate select-all rounded-xl bg-muted px-3 py-2 text-xs">{data.feedUrl}</code><Button size="sm" onClick={() => navigator.clipboard.writeText(data.feedUrl!).then(() => toast.success('Link copiado!'))}>Copiar</Button></div>
+          <ol className="text-xs text-muted-foreground list-decimal pl-5 space-y-1">
+            <li><b>Google Agenda</b> (calendar.google.com, no modo computador): <b>Outras agendas &gt; + &gt; Por URL</b>, cole o link e toque em <b>Adicionar agenda</b>. O app do celular sincroniza depois.</li>
+            <li><b>iPhone:</b> Ajustes &gt; Calendário &gt; Contas &gt; Adicionar conta &gt; Outra &gt; <b>Adicionar calendário assinado</b>.</li>
+          </ol>
+          <p className="text-xs text-amber-700">O Google atualiza agendas assinadas a cada algumas horas (pode levar até 12h+). iPhone e Outlook atualizam em minutos. Para aparecer na hora no Google, use a integração em tempo real (Google Cloud).</p>
+        </Card>
+      )}
 
       <Card className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-medium">Sincronizar agenda com o Google</p><p className="text-xs text-muted-foreground">Cria/atualiza no Google Agenda todos os agendamentos de ontem em diante.</p></div><Button loading={syncing} disabled={!status.calendarConfigured} onClick={syncAll}>Sincronizar agora</Button></Card>
 
